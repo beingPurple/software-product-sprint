@@ -16,6 +16,8 @@
  * Adds a random greeting to the page.
  */
 
+ import "nes.css/css/nes.min.css";
+
 function randMessage() {
     const msgList =
         ['“With a successful attack roll, the wizard maintains the thief in surfboard position.”',
