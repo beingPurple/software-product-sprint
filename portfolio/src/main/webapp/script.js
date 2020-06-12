@@ -16,8 +16,6 @@
  * Adds a random greeting to the page.
  */
 
- import "nes.css/css/nes.min.css";
-
 function randMessage() {
     const msgList =
         ['“With a successful attack roll, the wizard maintains the thief in surfboard position.”',
@@ -30,6 +28,11 @@ function randMessage() {
     const msg = msgList[Math.floor(Math.random() * msgList.length)];
     const msgContainer = document.getElementById('message-container');
     msgContainer.innerText = msg;
+}
+async function servlet(){
+    const response = await fetch('/data');
+  const quote = await response.text();
+  document.getElementById('quote-container').innerText = quote;
 }
 
 function addRandomGreeting() {
