@@ -34,7 +34,6 @@ async function servlet(){
   const quote = await response.text();
   document.getElementById('quote-container').innerText = quote;
 }
-
 function addRandomGreeting() {
     const greetings =
         ['Hello world!', '¡Hola Mundo!', '你好，世界！', 'Bonjour le monde!'];
