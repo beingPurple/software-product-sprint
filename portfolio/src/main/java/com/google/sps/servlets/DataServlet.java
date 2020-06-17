@@ -26,6 +26,9 @@ import java.util.List;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.SortDirection;
 
 /** Servlet that returns some example content. TODO: modify this file to handle comments data */
 @WebServlet("/data")
@@ -36,17 +39,36 @@ public class DataServlet extends HttpServlet {
 //     response.setContentType("text/html;");
 //     response.getWriter().println("Hello Noelle!");
 //   }
-        private final List<String> commStream = new ArrayList<>(Arrays.asList("my first comment"));
+        private final List<String> commStream = new ArrayList<>();
 
 		@Override
 		public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-			
+			Query query = new Query("Task").addSort("timestamp", SortDirection.DESCENDING);
+
+            DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+            PreparedQuery results = datastore.prepare(query);
+
+            List<String> tasks = new ArrayList<>();
+            for (Entity entity : results.asIterable()) {
+             long id = entity.getKey().getId();
+                String comm = (String) entity.getProperty("comment");
+                // long timestamp = (long) entity.getProperty("timestamp");
+
+                // Task task = new Task(comment, timestamp);
+                
+                tasks.add(comm);
+                
+
+            }
+            //so commstream is the most recent refresh. Upon 
+            // tasks.add(commStream);
+
 			response.setContentType("application/json;");
 			//   response.getWriter().println("Hello Noelle!");
-			String json = new Gson().toJson(commStream);
+			String json = new Gson().toJson(tasks);
 			// String text = getParameter(request, "text-input", "");
-			System.out.println("get: " + commStream);
-			response.getWriter().println(json);
+			System.out.println("get: " + tasks);
+			response.getWriter().println(tasks);
 		}
         
         @Override
