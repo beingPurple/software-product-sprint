@@ -23,6 +23,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
 
 /** Servlet that returns some example content. TODO: modify this file to handle comments data */
 @WebServlet("/data")
@@ -33,31 +36,43 @@ public class DataServlet extends HttpServlet {
 //     response.setContentType("text/html;");
 //     response.getWriter().println("Hello Noelle!");
 //   }
- private final List<String> commStream = new ArrayList<>();
+        private final List<String> commStream = new ArrayList<>(Arrays.asList("my first comment"));
 
 		@Override
 		public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 			
-			response.setContentType("application/json");
+			response.setContentType("application/json;");
 			//   response.getWriter().println("Hello Noelle!");
 			String json = new Gson().toJson(commStream);
 			// String text = getParameter(request, "text-input", "");
-			System.out.println(commStream);
+			System.out.println("get: " + commStream);
 			response.getWriter().println(json);
 		}
+        
+        @Override
 		public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 			String text = getParameter(request, "textarea_field", "");//returns what is in text firld
 			commStream.add(text);
-            System.out.println(text);
-			System.out.println(commStream);
+            // System.out.println(text);
+			System.out.println("post: " + commStream);
+            long timestamp = System.currentTimeMillis();
+
+            DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+            Entity taskEntity = new Entity("Task");
+            taskEntity.setProperty("comment", text);
+            taskEntity.setProperty("timestamp", timestamp); //adds a timestamp to the comment
+
+            // DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+            datastore.put(taskEntity);
+
 			response.sendRedirect("/index.html");
 		}
 
-		private String getParameter(HttpServletRequest request, String name, String defaultValue) {
-    String value = request.getParameter(name);
-    if (value == null) {
-      return defaultValue;
-    }
-    return value;
+        private String getParameter(HttpServletRequest request, String name, String defaultValue) {
+        String value = request.getParameter(name);
+        if (value == null) {
+        return defaultValue;
+        }
+        return value;
   }
 }

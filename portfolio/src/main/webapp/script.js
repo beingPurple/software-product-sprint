@@ -30,18 +30,16 @@ function randMessage() {
     msgContainer.innerText = msg;
 }
 function servlet() {
-    fetch('/data').then(response => response.json())
+    console.log("servlet has been called")
+    fetch('/data').then(response => response.json())//fetch from data
         .then((someTexts) => {
-            //   const quote = await response.text();
-            document.getElementById('quote-containter').innerText = someTexts;
+            console.log(someTexts);
+            document.getElementById('quote-container').innerText = someTexts;
 
-
-            // // Build the list of history entries.
-            // const historyEl = document.getElementById('quote-container');
-            // forEach((line) => {
-            //     historyEl.appendChild(createListElement(line));
-            // });
-        });
+            const hist = document.getElementById('quote-container');
+            someTexts.forEach((line)=> {hist.appendChild(createListElement(line))}
+            )
+    });
 }
 
 function addRandomGreeting() {
