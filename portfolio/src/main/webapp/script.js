@@ -31,15 +31,16 @@ function randMessage() {
 }
 function servlet() {
     console.log("servlet has been called")
-    fetch('/data').then(response => response.json())//fetch from data
-        .then((someTexts) => {
-            console.log(someTexts);
-            document.getElementById('quote-container').innerText = someTexts;
+    fetch('/data').then(response => response.text())//fetch from data
+        .then(text => {
+            console.log(text);
+            parsed = JSON.parse(text);
+            parsed.reverse();
+            console.log(parsed);
 
-            const hist = document.getElementById('quote-container');
-            someTexts.forEach((line)=> {hist.appendChild(createListElement(line))}
-            )
-    });
+            parsed = parsed.join('\n');
+            document.getElementById('quote-container').innerText = parsed;
+        });
 }
 
 function addRandomGreeting() {
