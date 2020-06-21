@@ -39,7 +39,7 @@ public class HomeServlet extends HttpServlet {
       out.println("<p>Login <a href=\"" + loginUrl + "\">here</a>.</p>");
       return;
     }
-
+ 
     // If user has not set a nickname, redirect to nickname page
     String nickname = getUserNickname(userService.getCurrentUser().getUserId());
     if (nickname == null) {
