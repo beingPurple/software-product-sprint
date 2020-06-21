@@ -56,11 +56,12 @@
 			<!-- comment stream -->
 			<p name="quote-container" id="quote-container"></p>
 
-			<form action="/data" method="POST">
+			<form action="/data" method="POST" id="form">
 				<!-- here you can post a comment -->
-				<label for="textarea_field">post your comment:</label>
+				<label id= "text-field" for="textarea_field">post your comment:</label>
 				<textarea name="textarea_field" class="nes-textarea"></textarea>
 				<input type="submit" />
+                <a href="/_ah/logout?continue=%2Fhome">logout</a>
             </form>
 		</div>
 		<p><a href=" resume.html">Wanna see my resume? </a></p>

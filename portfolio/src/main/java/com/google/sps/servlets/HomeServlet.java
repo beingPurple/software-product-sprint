@@ -23,6 +23,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 @WebServlet("/home")
 public class HomeServlet extends HttpServlet {
@@ -35,8 +38,9 @@ public class HomeServlet extends HttpServlet {
 
     // If user is not logged in, show a login form (could also redirect to a login page)
     if (!userService.isUserLoggedIn()) {
-      String loginUrl = userService.createLoginURL("/home");
-      out.println("<p>Login <a href=\"" + loginUrl + "\">here</a>.</p>");
+      String loginUrl = userService.createLoginURL("/home"); 
+      out.println("<p>You must <a href=\"" + loginUrl + "\">login</a> to comment</p>");
+    //   response.sendRedirect("/index.html");
       return;
     }
  
@@ -49,11 +53,18 @@ public class HomeServlet extends HttpServlet {
     }
 
     // User is logged in and has a nickname, so the request can proceed
-    String logoutUrl = userService.createLogoutURL("/home");
-    out.println("<h1>Home</h1>");
-    out.println("<p>Hello " + nickname + "!</p>");
-    out.println("<p>Logout <a href=\"" + logoutUrl + "\">here</a>.</p>");
-    out.println("<p>Change your nickname <a href=\"/nickname\">here</a>.</p>");
+    String logoutUrl = userService.createLogoutURL("/home"); 
+    List<String> login = new ArrayList<>();
+    login.add(nickname);
+    login.add(logoutUrl);
+    
+    // out.println("<p>Hello " + nickname + "!</p>");
+    // out.println("<p>Logout <a href=\"" + logoutUrl + "\">here</a>.</p>");
+    // out.println("<p>Change your nickname <a href=\"/nickname\">here</a>.</p>");
+
+     response.setContentType("application/json;");
+     response.getWriter().println(login);
+     response.sendRedirect("/index.html");
   }
 
   /** Returns the nickname of the user with id, or null if the user has not set a nickname. */
