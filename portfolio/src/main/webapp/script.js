@@ -31,16 +31,30 @@ function randMessage() {
 }
 function servlet() {
     console.log("servlet has been called")
-    fetch('/data').then(response => response.text())//fetch from data
-        .then(text => {
-            console.log(text);
-            parsed = JSON.parse(text);
-            parsed.reverse();
-            console.log(parsed);
+    fetch('/home').then((response) => response.text()).then(out => {
+        // out = JSON.parse(out); //not an array so it doesn't work
+        console.log(out);
 
-            parsed = parsed.join('\n');
-            document.getElementById('quote-container').innerText = parsed;
-        });
+        if (out.includes('login?continue=%2')) {
+            // out.html();
+            document.getElementById('form').innerHTML = out;
+            // document.getElementById('quote-container').innerText = out;
+            document.getElementById("text-field").style.display = "none";
+        }
+        else {
+            fetch('/data').then(response => response.text())//fetch from data
+                .then(text => {
+                    // console.log(text);
+                    parsed = JSON.parse(text);
+                    parsed.reverse();
+                    // console.log(parsed);
+
+                    parsed = parsed.join('\n');
+                    document.getElementById('quote-container').innerText = parsed;
+                });
+        }
+
+    });
 }
 
 function addRandomGreeting() {
