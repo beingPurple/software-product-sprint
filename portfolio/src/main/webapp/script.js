@@ -16,20 +16,31 @@
  * Adds a random greeting to the page.
  */
 
- import "nes.css/css/nes.min.css";
-
 function randMessage() {
     const msgList =
         ['“With a successful attack roll, the wizard maintains the thief in surfboard position.”',
-         'DM: So, what are your character’s flaws? Player: Acid reflux.',
-          'That’s too indiscriminate.  We should go with the rampaging bear.',
-          'We’ve managed to teach the robot about the most important human emotion: Humiliation.',
-          '“Do you have a permit for that facial hair?”',
-          'Cleric: “Everybody chill, it’s totes God’s will.”',
-          'Did asterisks exist in 2006?'];
+            'DM: So, what are your character’s flaws? Player: Acid reflux.',
+            'That’s too indiscriminate.  We should go with the rampaging bear.',
+            'We’ve managed to teach the robot about the most important human emotion: Humiliation.',
+            '“Do you have a permit for that facial hair?”',
+            'Cleric: “Everybody chill, it’s totes God’s will.”',
+            'Did asterisks exist in 2006?'];
     const msg = msgList[Math.floor(Math.random() * msgList.length)];
     const msgContainer = document.getElementById('message-container');
     msgContainer.innerText = msg;
+}
+function servlet() {
+    console.log("servlet has been called")
+    fetch('/data').then(response => response.text())//fetch from data
+        .then(text => {
+            console.log(text);
+            parsed = JSON.parse(text);
+            parsed.reverse();
+            console.log(parsed);
+
+            parsed = parsed.join('\n');
+            document.getElementById('quote-container').innerText = parsed;
+        });
 }
 
 function addRandomGreeting() {
