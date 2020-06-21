@@ -89,4 +89,6 @@ public class NicknameServlet extends HttpServlet {
     String nickname = (String) entity.getProperty("nickname");
     return nickname;
   }
+
+  
 }

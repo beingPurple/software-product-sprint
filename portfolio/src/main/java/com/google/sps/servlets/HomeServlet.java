@@ -29,12 +29,12 @@ import java.util.List;
 
 @WebServlet("/home")
 public class HomeServlet extends HttpServlet {
-
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     response.setContentType("text/html");
     PrintWriter out = response.getWriter();
     UserService userService = UserServiceFactory.getUserService();
+    
 
     // If user is not logged in, show a login form (could also redirect to a login page)
     if (!userService.isUserLoggedIn()) {
@@ -81,4 +81,5 @@ public class HomeServlet extends HttpServlet {
     String nickname = (String) entity.getProperty("nickname");
     return nickname;
   }
+  
 }
