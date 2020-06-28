@@ -29,11 +29,19 @@ function randMessage() {
     const msgContainer = document.getElementById('message-container');
     msgContainer.innerText = msg;
 }
+
+function handleErrors(response) {
+    if (!response.ok) {
+        throw Error(response.statusText);
+    }
+    return response;
+}
+
 function servlet() {
     console.log("servlet has been called")
-    fetch('/home').then((response) => response.text()).then(out => {
+    fetch('/home').then(handleErrors).then((response) => response.text()).then(out => {
         // out = JSON.parse(out); //not an array so it doesn't work
-        console.log(out);
+        // console.log(out);
 
         if (out.includes('login?continue=%2')) {
             // out.html();
@@ -42,16 +50,15 @@ function servlet() {
             document.getElementById("text-field").style.display = "none";
         }
         else {
-            fetch('/data').then(response => response.text())//fetch from data
+            fetch('/data').then(handleErrors).then(response => response.text())//fetch from data
                 .then(text => {
-                    // console.log(text);
                     parsed = JSON.parse(text);
                     parsed.reverse();
-                    // console.log(parsed);
 
                     parsed = parsed.join('\n');
                     document.getElementById('quote-container').innerText = parsed;
-                });
+                }
+                );
         }
 
     });

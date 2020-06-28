@@ -75,11 +75,13 @@ public class HomeServlet extends HttpServlet {
             .setFilter(new Query.FilterPredicate("id", Query.FilterOperator.EQUAL, id));
     PreparedQuery results = datastore.prepare(query);
     Entity entity = results.asSingleEntity();
-    if (entity == null) {
-      return null;
+
+    try{
+        String nickname = (String) entity.getProperty("nickname");
+        return nickname;
     }
-    String nickname = (String) entity.getProperty("nickname");
-    return nickname;
+    catch(Exception NullPointerException){
+        return null;
+    }
   }
-  
 }

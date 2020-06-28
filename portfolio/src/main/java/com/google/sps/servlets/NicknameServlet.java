@@ -40,12 +40,15 @@ public class NicknameServlet extends HttpServlet {
     UserService userService = UserServiceFactory.getUserService();
     if (userService.isUserLoggedIn()) {
       String nickname = getUserNickname(userService.getCurrentUser().getUserId());
-      out.println("<p>Set your nickname here:</p>");
-      out.println("<form method=\"POST\" action=\"/nickname\">");
-      out.println("<input name=\"nickname\" value=\"" + nickname + "\" />");
-      out.println("<br/>");
-      out.println("<button>Submit</button>");
-      out.println("</form>");
+      out.println("
+        Set your nickname here:
+        " +
+        "<form method="POST" action="/nickname">" +
+        "<input name="nickname" value="" + nickname + "" />" +
+        "
+        "+
+        "Submit" +
+        "");
     } else {
       String loginUrl = userService.createLoginURL("/nickname");
       out.println("<p>Login <a href=\"" + loginUrl + "\">here</a>.</p>");
@@ -83,11 +86,12 @@ public class NicknameServlet extends HttpServlet {
             .setFilter(new Query.FilterPredicate("id", Query.FilterOperator.EQUAL, id));
     PreparedQuery results = datastore.prepare(query);
     Entity entity = results.asSingleEntity();
-    if (entity == null) {
+    try {
+     return (String) entity .getProperty("nickname");
+    } catch ( NullPointerException e) {
+     // TODO: Log exception in server logs for records.
       return "";
     }
-    String nickname = (String) entity.getProperty("nickname");
-    return nickname;
   }
 
   

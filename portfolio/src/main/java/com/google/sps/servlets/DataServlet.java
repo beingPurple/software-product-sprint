@@ -64,7 +64,6 @@ public class DataServlet extends HttpServlet {
 
 			response.setContentType("application/json;");
 			String json = new Gson().toJson(tasks);
-			// System.out.println("get: " + tasks);
 
             //add in nickname to commstream
             
@@ -79,11 +78,12 @@ public class DataServlet extends HttpServlet {
                     .setFilter(new Query.FilterPredicate("id", Query.FilterOperator.EQUAL, id));
             PreparedQuery results = datastore.prepare(query);
             Entity entity = results.asSingleEntity();
-            if (entity == null) {
+            try {
+                return (String) entity.getProperty("nickname");
+            } catch ( NullPointerException e) {
+             // TODO: Log exception in server logs for records.
                 return "";
             }
-            String nickname = (String) entity.getProperty("nickname");
-            return nickname;
         }
         
         @Override
@@ -91,12 +91,6 @@ public class DataServlet extends HttpServlet {
 			String text =  getParameter(request, "textarea_field", "");//returns what is in text firld
 			
             //add in nickname to commstream
-            UserService userService = UserServiceFactory.getUserService();
-            String nickname = getUserNickname(userService.getCurrentUser().getUserId());
-            System.out.println("nickname: " + nickname);
-            // commStream.add(nickname + ": ") //a way to make nicknames permanent
-
-
             commStream.add(text);
 			System.out.println("post: " + commStream);
             long timestamp = System.currentTimeMillis();
