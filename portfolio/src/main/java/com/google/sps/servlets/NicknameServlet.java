@@ -27,6 +27,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;  // Import the File class
+import java.io.FileNotFoundException;  // Import this class to handle errors
+import java.util.Scanner; // Import the Scanner class to read text files
 
 @WebServlet("/nickname")
 public class NicknameServlet extends HttpServlet {
@@ -40,15 +43,14 @@ public class NicknameServlet extends HttpServlet {
     UserService userService = UserServiceFactory.getUserService();
     if (userService.isUserLoggedIn()) {
       String nickname = getUserNickname(userService.getCurrentUser().getUserId());
-      out.println("
-        Set your nickname here:
-        " +
-        "<form method="POST" action="/nickname">" +
-        "<input name="nickname" value="" + nickname + "" />" +
-        "
-        "+
-        "Submit" +
-        "");
+      File myObj = new File("nickname_template.html");
+      Scanner myReader = new Scanner(myObj);
+      while (myReader.hasNextLine()) {
+        String data = myReader.nextLine();
+        out.println(data);
+      }
+      myReader.close();
+    //   response.getWriter().println("/nickname_template.html");
     } else {
       String loginUrl = userService.createLoginURL("/nickname");
       out.println("<p>Login <a href=\"" + loginUrl + "\">here</a>.</p>");
@@ -76,6 +78,7 @@ public class NicknameServlet extends HttpServlet {
     response.sendRedirect("/home");
   }
 
+
   /**
    * Returns the nickname of the user with id, or empty String if the user has not set a nickname.
    */
@@ -92,6 +95,9 @@ public class NicknameServlet extends HttpServlet {
      // TODO: Log exception in server logs for records.
       return "";
     }
+  }
+  public String pubGetNick(String id){
+      return getUserNickname(id);
   }
 
   

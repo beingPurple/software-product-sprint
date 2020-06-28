@@ -38,6 +38,7 @@ public class DataServlet extends HttpServlet {
 
         private final List<String> commStream = new ArrayList<>();
         private HomeServlet nickname = new HomeServlet();
+        private NicknameServlet nickServ = new NicknameServlet();
 
 		@Override
 		public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -66,24 +67,13 @@ public class DataServlet extends HttpServlet {
 			String json = new Gson().toJson(tasks);
 
             //add in nickname to commstream
-            
-
 			response.getWriter().println(json);
 		}
 
         private String getUserNickname(String id) {
-            DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-            Query query =
-                new Query("UserInfo")
-                    .setFilter(new Query.FilterPredicate("id", Query.FilterOperator.EQUAL, id));
-            PreparedQuery results = datastore.prepare(query);
-            Entity entity = results.asSingleEntity();
-            try {
-                return (String) entity.getProperty("nickname");
-            } catch ( NullPointerException e) {
-             // TODO: Log exception in server logs for records.
-                return "";
-            }
+            String n = nickServ.pubGetNick(id);
+            System.out.println("nickname: " + n);
+            return n;
         }
         
         @Override
@@ -91,6 +81,11 @@ public class DataServlet extends HttpServlet {
 			String text =  getParameter(request, "textarea_field", "");//returns what is in text firld
 			
             //add in nickname to commstream
+            UserService userService = UserServiceFactory.getUserService();
+            String nickname = getUserNickname(userService.getCurrentUser().getUserId());
+            
+
+
             commStream.add(text);
 			System.out.println("post: " + commStream);
             long timestamp = System.currentTimeMillis();
