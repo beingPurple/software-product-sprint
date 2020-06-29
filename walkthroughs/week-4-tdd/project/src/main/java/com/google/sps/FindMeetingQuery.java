@@ -24,36 +24,92 @@ import java.util.*;
 
 public final class FindMeetingQuery {
     public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
+        Collection<Event> modEvents = new ArrayList<Event>();
         Collection<TimeRange> free = new ArrayList<TimeRange>(); //when user is free
         TimeRange freeTime = null;
+        Event prev = null;
+        Event busy = null;
+        Boolean passed = false;
+        Boolean overlap = false;
+        Iterator<Event> iterator = events.iterator();
+        int later = 0;
+        int sTime = 0;
+        int totalFreeTime = 0;
+        Collection<String> personInQuestion = request.getAttendees();
 
-        if(request.getDuration() > TimeRange.WHOLE_DAY.duration()){
+        System.out.println("================START=====================");
+        //print out whole event list raw
+        System.out.println("all events (that are already scheduled) --------");
+        //go through each event. does the attendee appear on the request? if not remove from the collection
+        ArrayList<String> requestAttendants = new ArrayList<String>();
+        ArrayList<Event> notAttendingEvent = new ArrayList<Event>();
+
+        Collection<String> r = request.getAttendees();
+        for(String s:r){
+            requestAttendants.add(s);
+        }
+        System.out.println("request attendants: " + requestAttendants);
+
+        for(Event i:events){
+            System.out.println("event in question: " + i);
+            for(String attend:requestAttendants){
+                System.out.println("attendant in question: " + attend);
+                if(!i.getAttendees().contains(attend)){
+                        System.out.println("removing");
+                    }
+                else{
+                    modEvents.add(i);
+                    totalFreeTime += i.getWhen().duration();
+                    System.out.println("keeping");
+                }
+            }
+        }
+        System.out.println();
+        events = modEvents;
+
+        totalFreeTime = TimeRange.WHOLE_DAY.duration() - totalFreeTime;
+        System.out.println("size: " + events.size() + 
+                            ", total free timne: " + 
+                            totalFreeTime);
+        System.out.println("meeting attendees: " + request.getAttendees() + ", duration: "+ request.getDuration());
+
+        if(totalFreeTime < request.getDuration()){ //if there is not enough space in the schedule
+            System.out.println("not enough time");
+            return free;
+        }
+
+        if(!passed && request.getDuration() > TimeRange.WHOLE_DAY.duration()){
         //if request is too long
-                    //return an empty set
-                }
-        else if(events.isEmpty()){
+            //return an empty set
+            System.out.println("request is too long");
+            return free;
+        }
+        else if(!passed && events.isEmpty()){
         //is user completely free?
-                    freeTime = TimeRange.WHOLE_DAY;
-                    free.add(freeTime);
-                }
-        
-
-        else {//if request is a normal ammount
+            freeTime = TimeRange.WHOLE_DAY;
+            System.out.println("free whole day: " + freeTime);
+            free.add(freeTime);
+            passed = true;
+            System.out.println("free: " + free);
+        }
+        else if (!passed){//if request is a normal ammount
             //take the meeting chunk out of the day and split into two options
             Boolean first = true;
-            Boolean overlap = false;
-            Boolean passed = false;
-            Event prev = null;
-            Iterator<Event> iterator = events.iterator();
+            
+            
+            
+            
             while (!passed && iterator.hasNext()) {
-                Event busy = iterator.next();
+                busy = iterator.next();
                 System.out.println("=====================================");
-                
                 System.out.println("next event: [" + busy.getWhen().start()+
                 " , " + busy.getWhen().end() + "]");
                 if(prev != null)
                 {System.out.println("prev event: [" + prev.getWhen().start()+
                 " , " + prev.getWhen().end() + "]");}
+                
+                System.out.println("passed?: " + passed);
+                System.out.println("next?: " + iterator.hasNext());
                 if(first){      
                     //before the event
                     // System.out.println("first");
@@ -62,54 +118,105 @@ public final class FindMeetingQuery {
                     {
                         free.add(freeTime);
                         passed = true;
-                        System.out.println("adding first event");
+                        System.out.println("adding first free time: " + freeTime);
                     }
                     else {
                         System.out.println("immediately busy");
-
+                        passed = true;
                     }
                     first = !first;
                     prev = busy;
                 }
 
                 //for in between events
-                if(!passed && iterator.hasNext()){
-                    freeTime = TimeRange.fromStartEnd(prev.getWhen().end(), busy.getWhen().start() , false);
-                    System.out.println("adding free time: " + freeTime);
-                    //not sure why this is an hour off...
-                    // if(busy.getWhen().overlaps(prev.getWhen())
-                    // && prev.getWhen().end() != busy.getWhen().end()
-                    // ){
-                    //     overlap = true;
-                    // }
-                    // if((busy.getWhen().start() + 60) - prev.getWhen().end() < 0
-                    // && !busy.getWhen().overlaps(prev.getWhen())){
-                        free.add(freeTime);//it's off by 30m here...
+                if(!passed){
+                    
+                    if(!prev.getWhen().overlaps(busy.getWhen()))//check for overlaps
+                    {
+                        if(later != 0){
+                            sTime = later;
+                            overlap = false;
+                            later = 0;
+                        }
+                        else{
+                            sTime= prev.getWhen().end();
+                            overlap = false;
+                        }
+                        freeTime = TimeRange.fromStartEnd(sTime, busy.getWhen().start() , false);
+                        System.out.println("adding free time: " + freeTime);
+                        free.add(freeTime);
                         passed = true;
                         System.out.println("adding mid event");
-                // }
-                
-            }
-            
-            if(!passed && !iterator.hasNext())
-            {//for last event
-                // System.out.println("end");
-                //if they overlap, the end free period is off by 30m
-                int s = busy.getWhen().end();
-                // if(overlap){
-                //     s+= 30;
-                // }
-                freeTime = TimeRange.fromStartEnd(s, TimeRange.END_OF_DAY , true);
-                if(busy.getWhen().end() != TimeRange.END_OF_DAY+1){
-                    free.add(freeTime);
-                    passed = true;
-                    System.out.println("adding last event");
+                        prev = busy;
+                    }
+                    else{
+                        System.out.println("overlap!");
+                        overlap = true;
+                        if(prev.getWhen().end() > busy.getWhen().end()){
+                            later = prev.getWhen().end();
+                            System.out.println("prev ends later: " + later + "[" + busy.getWhen().end() + "]");
+                        }
+                        else if (busy.getWhen().end() >= prev.getWhen().end()){
+                            later = busy.getWhen().end();
+                            System.out.println("next event ends later: " + later+ "[" + prev.getWhen().end() + "]");
+                        }
+                        passed = true;
+                    }
                 }
-            }
-            passed = false;
+                System.out.println("next pass");
+                passed = !passed;
+                System.out.println("next? " + iterator.hasNext());
             }
         }
+        //check to see if event at end
+        System.out.println("out of loop. passed yet? " + passed);
+        
+        System.out.println("are there any left?: " + iterator.hasNext());
+        if(!passed){
+            System.out.println("in endgame");
+            if(busy.getWhen().end() > TimeRange.END_OF_DAY || prev.getWhen().end() > TimeRange.END_OF_DAY)
+                {
+                    if(later != 0){
+                            sTime = later;
+                            overlap = false;
+                            later = 0;
+                    }
+                    else{
+                        sTime= prev.getWhen().end();
+                        overlap = false;
+                    }
+                    System.out.println("later: " + later + "sTime: " + sTime);
+                    freeTime = TimeRange.fromStartEnd(sTime, busy.getWhen().start() , false);
+                    
+                    System.out.println("event at end of day -> no free time");
+                    // free.add(freeTime);
+                    passed = true;
+                    // System.out.println("adding last free time: " + freeTime);
+                }
+
+                else{//if you're free at the end of the day
+                    // check if free time is longer than 1 minute
+                    System.out.println("free at end");
+                    if(prev.getWhen().end() != TimeRange.END_OF_DAY + 1)
+                    if(later != 0){
+                            sTime = later;
+                            overlap = false;
+                            later = 0;
+                    }
+                    else{
+                        sTime= prev.getWhen().end();
+                        overlap = false;
+                    }
+                    System.out.println("later: " + later + " sTime: " + sTime);
+                    freeTime = TimeRange.fromStartEnd(sTime, TimeRange.END_OF_DAY , true);
+                    free.add(freeTime);
+                    passed = true;
+                    System.out.println("adding last free time: " + freeTime);
+                }
+            }
+        System.out.println("====================DONE PASSING=================");
         System.out.println("free time list: " + free);
+        System.out.println();
         return free;
-  }
+    }
 }
