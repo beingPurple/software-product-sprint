@@ -30,8 +30,6 @@ public final class MeetingRequest {
   public MeetingRequest(Collection<String> attendees, long duration) {
     this.duration = duration;
     this.attendees.addAll(attendees);
-    System.out.println("attendees: " + attendees);
-    System.out.println("duration: " + duration);
   }
 
   /**
