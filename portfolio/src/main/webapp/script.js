@@ -11,10 +11,25 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+// AOS.init({
+//   duration: 1200,
+// })
 
-/**
- * Adds a random greeting to the page.
- */
+ const [hue, sat, val] = [332,80,67]//subtractive, so start at max
+const section2 = document.getElementsByClassName('section2');
+// console.log("section 2: " + section2);
+
+window.addEventListener('scroll', () => {
+  const y = 1 + (window.scrollY || window.pageYOffset)/(document.body.scrollHeight); 
+
+const [h,s,l] = [hue/y,sat,val].map(Math.round);
+
+  //set up pastel rotation
+  for (let item of section2) {
+  item.style.color = `hsl(${h}, ${s}%, ${l}%)`;
+  }
+//   console.log("color: " + section2.style.color);
+})
 
 function randMessage() {
     const msgList =
@@ -29,18 +44,39 @@ function randMessage() {
     const msgContainer = document.getElementById('message-container');
     msgContainer.innerText = msg;
 }
+
+function handleErrors(response) {
+    if (!response.ok) {
+        throw Error(response.statusText);
+    }
+    return response;
+}
+
 function servlet() {
     console.log("servlet has been called")
-    fetch('/data').then(response => response.text())//fetch from data
-        .then(text => {
-            console.log(text);
-            parsed = JSON.parse(text);
-            parsed.reverse();
-            console.log(parsed);
+    fetch('/home').then(handleErrors).then((response) => response.text()).then(out => {
+        // out = JSON.parse(out); //not an array so it doesn't work
+        // console.log(out);
 
-            parsed = parsed.join('\n');
-            document.getElementById('quote-container').innerText = parsed;
-        });
+        if (out.includes('login?continue=%2')) {
+            // out.html();
+            document.getElementById('form').innerHTML = out;
+            // document.getElementById('quote-container').innerText = out;
+            document.getElementById("text-field").style.display = "none";
+        }
+        else {
+            fetch('/data').then(handleErrors).then(response => response.text())//fetch from data
+                .then(text => {
+                    parsed = JSON.parse(text);
+                    parsed.reverse();
+
+                    parsed = parsed.join('\n');
+                    document.getElementById('quote-container').innerText = parsed;
+                }
+                );
+        }
+
+    });
 }
 
 function addRandomGreeting() {
