@@ -11,10 +11,25 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+// AOS.init({
+//   duration: 1200,
+// })
 
-/**
- * Adds a random greeting to the page.
- */
+ const [hue, sat, val] = [332,80,67]//subtractive, so start at max
+const section2 = document.getElementsByClassName('section2');
+// console.log("section 2: " + section2);
+
+window.addEventListener('scroll', () => {
+  const y = 1 + (window.scrollY || window.pageYOffset)/(document.body.scrollHeight); 
+
+const [h,s,l] = [hue/y,sat,val].map(Math.round);
+
+  //set up pastel rotation
+  for (let item of section2) {
+  item.style.color = `hsl(${h}, ${s}%, ${l}%)`;
+  }
+//   console.log("color: " + section2.style.color);
+})
 
 function randMessage() {
     const msgList =

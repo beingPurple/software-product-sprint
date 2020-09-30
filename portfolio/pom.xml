@@ -52,7 +52,8 @@
         <version>2.2.0</version>
         <configuration>
           <!-- TODO: set project ID. -->
-          <deploy.projectId>nmorgan-sps-summer20</deploy.projectId>
+          <!-- <deploy.projectId>nmorgan-sps-summer20</deploy.projectId> -->
+          <deploy.projectId>sps-stuff</deploy.projectId>
           <deploy.version>1</deploy.version>
         </configuration>
       </plugin>
